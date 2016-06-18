@@ -31,6 +31,8 @@
   },
   "devDependencies": {
     "ava": "^0.15.2",
+    "path-exists": "^1.0.0",
+    "pify": "^2.3.0",
     "xo": "^0.16.0"
   },
   "keywords": []
