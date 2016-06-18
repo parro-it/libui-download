@@ -1,24 +1,16 @@
 {
-  "name": "electron-download",
-  "version": "2.1.2",
-  "description": "download electron prebuilt binary zips from github releases",
-  "main": "index.js",
+  "name": "libui-download",
+  "version": "0.0.0",
+  "description": "download libui prebuilt binary zips from github releases",
   "bin": {
-    "electron-download": "cli.js"
+    "libui-download": "cli.js"
   },
   "scripts": {
     "test": "xo"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/electron-userland/electron-download.git"
-  },
-  "author": "max ogden",
-  "license": "BSD-3-Clause",
-  "bugs": {
-    "url": "https://github.com/electron-userland/electron-download/issues"
-  },
-  "homepage": "https://github.com/electron-userland/electron-download#readme",
+  "repository": "parro-it/libui-download"
+  "author": "Andrea Parodi",
+  "license": "MIT",
   "dependencies": {
     "debug": "^2.2.0",
     "home-path": "^1.0.1",
@@ -35,5 +27,5 @@
     "pify": "^2.3.0",
     "xo": "^0.16.0"
   },
-  "keywords": []
+  "keywords": ["libui", "libui-node", "installer"]
 }
