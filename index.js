@@ -22,7 +22,7 @@ module.exports = function download(opts, cb) {
 	var url = process.env.NPM_CONFIG_LIBUI_MIRROR ||
 		process.env.LIBUI_MIRROR ||
 		opts.mirror ||
-		'https://github.com/electron/electron/releases/download/';
+		'https://github.com/parro-it/libui/releases/download/';
 
 	url += process.env.LIBUI_CUSTOM_DIR || opts.customDir || version;
 	url += '/';
