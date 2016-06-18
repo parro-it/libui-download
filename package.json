@@ -7,7 +7,7 @@
     "electron-download": "cli.js"
   },
   "scripts": {
-    "test": "standard && node test.js && node test_symbols.js && node test_404.js && echo PASSED"
+    "test": "xo"
   },
   "repository": {
     "type": "git",
@@ -30,6 +30,7 @@
     "rc": "^1.1.2"
   },
   "devDependencies": {
+    "ava": "^0.15.2",
     "xo": "^0.16.0"
   },
   "keywords": []
