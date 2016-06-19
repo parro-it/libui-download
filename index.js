@@ -140,7 +140,7 @@ async function download(opts) {
 			if (resp.statusCode === 404) {
 				return reject(new Error(`Failed to find libui ${version} for ${opts.platform || os.platform()}-${arch} at ${url}`));
 			}
-			const fileWrite = res.pipe(createWriteStream(cachedZip));
+			const fileWrite = res.pipe(createWriteStream(target));
 
 			fileWrite.on('finish', finish);
 			fileWrite.on('error', reject);
