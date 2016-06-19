@@ -1,35 +1,77 @@
-var os = require('os');
-var path = require('path');
-var pathExists = require('path-exists');
-var mkdir = require('mkdirp');
-var nugget = require('nugget');
-var homePath = require('home-path');
-var mv = require('mv');
-var debug = require('debug')('electron-download');
-var npmrc = require('rc')('npm');
+import {createWriteStream} from 'fs';
+import os from 'os';
+import path from 'path';
+import _mkdir from 'mkdirp';
+import pathExists from 'path-exists';
+import pify from 'pify';
+import homePath from 'home-path';
+import mv from 'mv';
+import _debug from 'debug';
+// import _npmrc from 'rc';
+import _Promise from 'pinkie-promise';
+import fetch from 'node-fetch';
+import regeneratorRuntime from 'regenerator-runtime'; // eslint-disable-line no-unused-vars
 
-module.exports = function download(opts, cb) {
-	var platform = opts.platform || os.platform();
-	var arch = opts.arch || os.arch();
-	var version = opts.version;
-	var symbols = opts.symbols || false;
+const Promise = global.Promise || _Promise;
+const debug = _debug('libui-download');
+// const npmrc = _npmrc('npm');
+const mkdir = pify(_mkdir, Promise);
 
-	if (!version) {
-		return cb(new Error('must specify version'));
+function nodePlatformToOS(arch) {
+	switch (arch) {
+		case 'darwin': return 'osx';
+		case 'win32': return 'windows';
+		case 'linux': return 'linux';
+		default: throw new Error('Unknown platform ' + arch);
 	}
+}
 
-	var filename = 'libui-v' + version + '-' + platform + '-' + arch + (symbols ? '-symbols' : '') + '.zip';
+async function mkCacheDir(cache) {
+	try {
+		await mkdir(cache);
+		return cache;
+	} catch (err) {
+		if (err.code !== 'EACCES') {
+			debug('mkCacheDir error: ', err.stack);
+			throw err;
+		}
+
+		// try local folder if homedir is off limits (e.g. some linuxes return '/' as homedir)
+		var localCache = path.resolve('./.libui');
+
+		await mkdir(localCache);
+		return localCache;
+	}
+}
+
+function buildUrl(opts, filename) {
 	var url = process.env.NPM_CONFIG_LIBUI_MIRROR ||
 		process.env.LIBUI_MIRROR ||
 		opts.mirror ||
 		'https://github.com/parro-it/libui/releases/download/';
 
-	url += process.env.LIBUI_CUSTOM_DIR || opts.customDir || version;
+	url += process.env.LIBUI_CUSTOM_DIR || opts.customDir || opts.version;
 	url += '/';
 	url += process.env.LIBUI_CUSTOM_FILENAME || opts.customFilename || filename;
+	return url;
+}
+
+async function download(opts) {
+	var platform = nodePlatformToOS(opts.platform || os.platform());
+	var arch = opts.arch || os.arch();
+	var version = opts.version;
+	var symbols = opts.symbols || false;
+	var filename = 'libui-shared-' + platform + '-' + arch + '-' + version + (symbols ? '-symbols' : '') + '.tar.gz';
+
+	if (!version) {
+		throw new Error('must specify version');
+	}
+
+	const url = buildUrl(opts, filename);
 	var homeDir = homePath();
 	var cache = opts.cache || path.join(homeDir, './.libui');
 
+/*
 	var strictSSL = true;
 	if (opts.strictSSL === false || npmrc['strict-ssl'] === false) {
 		strictSSL = false;
@@ -44,105 +86,56 @@ module.exports = function download(opts, cb) {
 	if (npmrc && npmrc['https-proxy']) {
 		proxy = npmrc['https-proxy'];
 	}
-
+*/
 	debug('info', {cache: cache, filename: filename, url: url});
 
 	var cachedZip = path.join(cache, filename);
-	pathExists(cachedZip, function (err, exists) {
-		if (err) {
-			return cb(err);
-		}
+	const exists = await pathExists(cachedZip);
 
-		if (exists) {
-			debug('zip exists', cachedZip);
-			return cb(null, cachedZip);
-		}
-
-		debug('creating cache/tmp dirs');
-
-		// otherwise download it
-		mkCacheDir(function (err, actualCache) {
-			if (err) {
-				return cb(err);
-			}
-
-			cachedZip = path.join(actualCache, filename); // in case cache dir changed
-
-			// download to tmpdir
-			var tmpdir = path.join(
-				os.tmpdir(),
-				'electron-tmp-download-' + process.pid + '-' + Date.now()
-			);
-
-			mkdir(tmpdir, onDirCreated);
-
-			function onDirCreated(err) {
-				if (err) {
-					return cb(err);
-				}
-
-				debug('downloading zip', url, 'to', tmpdir);
-				var nuggetOpts = {
-					target: filename,
-					dir: tmpdir,
-					resume: true,
-					verbose: true,
-					strictSSL: strictSSL,
-					proxy: proxy
-				};
-
-				nugget(url, nuggetOpts, function (errors) {
-					if (errors) {
-						// nugget returns an array of errors but we only need 1st
-						// because we only have 1 url
-						var error = errors[0];
-
-						if (error.message.indexOf('404') === -1) {
-							return cb(error);
-						}
-
-						if (symbols) {
-							error.message = 'Failed to find libui symbols v' + version + ' for ' + platform + '-' + arch + ' at ' + url;
-						} else {
-							error.message = 'Failed to find libui v' + version + ' for ' + platform + '-' + arch + ' at ' + url;
-						}
-
-						return cb(error);
-					}
-
-					// when dl is done then put in cache
-					debug('moving zip to', cachedZip);
-
-					mv(path.join(tmpdir, filename), cachedZip, function (err) {
-						if (err) {
-							return cb(err);
-						}
-
-						cb(null, cachedZip);
-					});
-				});
-			}
-		});
-	});
-
-	function mkCacheDir(cb) {
-		mkdir(cache, function (err) {
-			if (err) {
-				if (err.code !== 'EACCES') {
-					return cb(err);
-				}
-
-				// try local folder if homedir is off limits (e.g. some linuxes return '/' as homedir)
-				var localCache = path.resolve('./.libui');
-
-				return mkdir(localCache, function (err) {
-					if (err) {
-						return cb(err);
-					}
-					cb(null, localCache);
-				});
-			}
-			cb(null, cache);
-		});
+	if (exists) {
+		debug('zip exists', cachedZip);
+		return cachedZip;
 	}
-};
+
+	debug('creating cache/tmp dirs');
+
+	// otherwise download it
+	const actualCache = await mkCacheDir(cache);
+	cachedZip = path.join(actualCache, filename); // in case cache dir changed
+
+	// download to tmpdir
+	var tmpdir = path.join(
+		os.tmpdir(),
+		'libui-tmp-download-' + process.pid + '-' + Date.now()
+	);
+
+	await mkdir(tmpdir);
+	debug(tmpdir + 'created');
+
+	debug('downloading zip', url, 'to', tmpdir);
+	const res = await fetch(url);
+	if (res.status === 404) {
+		throw new Error(`Failed to find libui ${version} for ${opts.platform || os.platform()}-${arch} at ${url}`);
+	}
+
+	const target = path.join(tmpdir, filename);
+	const fileWrite = createWriteStream(cachedZip);
+	res.body.pipe(fileWrite);
+
+	return await new Promise((resolve, reject) => {
+		fileWrite.on('end', () => {
+			console.log('end stream reached');
+			mv(target, cachedZip, function (err) {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(cachedZip);
+				}
+			});
+		});
+
+		fileWrite.on('error', reject);
+	});
+}
+
+module.exports = download;
