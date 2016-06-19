@@ -8,10 +8,12 @@ if (opts['strict-ssl'] === false) {
 	opts.strictSSL = false;
 }
 
-download(opts, function (err, zipPath) {
-	if (err) {
-		throw err;
-	}
-	console.log('Downloaded zip:', zipPath);
-	process.exit(0);
-});
+download(opts)
+	.then(function (zipPath) {
+		console.log('Downloaded zip:', zipPath);
+		process.exit(0);
+	})
+	.catch(function (err) {
+		console.error(err.stack);
+		process.exit(1);
+	});

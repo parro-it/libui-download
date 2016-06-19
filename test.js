@@ -1,7 +1,6 @@
 import test from 'ava';
-import pathExists from 'path-exists';
 import 'babel-register';
-import download from './';
+import download, {pathExists} from './index';
 
 test('Download a release', async t => {
 	const zipPath = await download({

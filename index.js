@@ -143,4 +143,5 @@ async function download(opts) {
 	});
 }
 
+download.pathExists = pathExists;
 module.exports = download;

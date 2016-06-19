@@ -2,14 +2,16 @@
   "name": "libui-download",
   "version": "0.0.0",
   "description": "download libui prebuilt binary zips from github releases",
+  "main": "es5.js",
   "bin": {
     "libui-download": "cli.js"
   },
   "scripts": {
-    "test": "ava && xo"
+    "test": "ava && xo",
+    "prepublish": "babel index.js --out-file es5.js"
   },
   "files": [
-    "index.js",
+    "es5.js",
     "cli.js"
   ],
   "repository": "parro-it/libui-download",
