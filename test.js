@@ -8,7 +8,7 @@ test('Download a release', async t => {
 		arch: 'x64',
 		platform: 'linux'
 	});
-
+	console.log(zipPath);
 	t.true(await pathExists(zipPath));
 });
 

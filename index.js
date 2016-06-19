@@ -128,8 +128,8 @@ async function download(opts) {
 	res.body.pipe(fileWrite);
 
 	return await new Promise((resolve, reject) => {
-		fileWrite.on('end', () => {
-			console.log('end stream reached');
+		const finish = () => {
+			console.log('end stream reached', target, cachedZip);
 			mv(target, cachedZip, function (err) {
 				if (err) {
 					reject(err);
@@ -137,8 +137,10 @@ async function download(opts) {
 					resolve(cachedZip);
 				}
 			});
-		});
+		};
 
+		fileWrite.on('end', finish);
+		fileWrite.on('finish', finish);
 		fileWrite.on('error', reject);
 	});
 }
