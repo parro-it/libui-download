@@ -8,7 +8,7 @@ import mv from 'mv';
 import _debug from 'debug';
 // import _npmrc from 'rc';
 import _Promise from 'pinkie-promise';
-import fetch from 'node-fetch';
+import request from 'request';
 import regeneratorRuntime from 'regenerator-runtime'; // eslint-disable-line no-unused-vars
 
 const Promise = global.Promise || _Promise;
@@ -118,16 +118,12 @@ async function download(opts) {
 	debug(tmpdir + 'created');
 
 	debug('downloading zip', url, 'to', tmpdir);
-	const res = await fetch(url);
-	if (res.status === 404) {
-		throw new Error(`Failed to find libui ${version} for ${opts.platform || os.platform()}-${arch} at ${url}`);
-	}
 
 	const target = path.join(tmpdir, filename);
-	const fileWrite = createWriteStream(cachedZip);
-	res.body.pipe(fileWrite);
 
 	return await new Promise((resolve, reject) => {
+		const res = request(url);
+
 		const finish = () => {
 			console.log('end stream reached', target, cachedZip);
 			mv(target, cachedZip, function (err) {
@@ -139,9 +135,16 @@ async function download(opts) {
 			});
 		};
 
-		fileWrite.on('end', finish);
-		fileWrite.on('finish', finish);
-		fileWrite.on('error', reject);
+		res.on('response', resp => {
+			console.log(resp.statusCode);
+			if (resp.statusCode === 404) {
+				return reject(new Error(`Failed to find libui ${version} for ${opts.platform || os.platform()}-${arch} at ${url}`));
+			}
+			const fileWrite = res.pipe(createWriteStream(cachedZip));
+
+			fileWrite.on('finish', finish);
+			fileWrite.on('error', reject);
+		});
 	});
 }
 
