@@ -2,9 +2,9 @@ import {createWriteStream, access} from 'fs';
 import os from 'os';
 import path from 'path';
 import _mkdir from 'mkdirp';
-import pify from 'pify';
 import homePath from 'home-path';
 import mv from 'mv';
+import pify from 'pify';
 import _debug from 'debug';
 // import _npmrc from 'rc';
 import _Promise from 'pinkie-promise';
@@ -29,6 +29,11 @@ function nodePlatformToOS(arch) {
 		case 'linux': return 'linux';
 		default: throw new Error('Unknown platform ' + arch);
 	}
+}
+
+function cacheDir(opts = {}) {
+	var homeDir = homePath();
+	return opts.cache || path.join(homeDir, './.libui');
 }
 
 async function mkCacheDir(cache) {
@@ -71,10 +76,8 @@ async function download(opts) {
 	if (!version) {
 		throw new Error('must specify version');
 	}
-
 	const url = buildUrl(opts, filename);
-	var homeDir = homePath();
-	var cache = opts.cache || path.join(homeDir, './.libui');
+	var cache = cacheDir(opts.cache);
 
 /*
 	var strictSSL = true;
@@ -149,4 +152,5 @@ async function download(opts) {
 }
 
 download.pathExists = pathExists;
+download.cacheDir = cacheDir;
 module.exports = download;

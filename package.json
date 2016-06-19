@@ -36,6 +36,7 @@
     "babel-register": "^6.9.0",
     "pify": "^2.3.0",
     "pinkie-promise": "^2.0.1",
+    "rimraf": "^2.5.2",
     "xo": "^0.16.0"
   },
   "keywords": [
