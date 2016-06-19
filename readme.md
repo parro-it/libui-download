@@ -18,18 +18,19 @@ $ libui-download --version=0.31.1
 ```js
 var download = require('libui-download');
 
-download({
+const zipPath = await download({
 	version: '0.25.1',
 	arch: 'ia32',
 	platform: 'win32',
 	cache: './zips' // defaults to <user home directory>/.libui
-}, function (err, zipPath) {
-	// zipPath will be the path of the zip that it downloaded.
-	// if the zip was already cached it will skip
-	// downloading and call the cb with the cached zip path
-	// if it wasn't cached it will download the zip and save
-	// it in the cache path
-})
+});
+
+// zipPath will be the path of the zip that it downloaded.
+// if the zip was already cached it will skip
+// downloading and call the cb with the cached zip path
+// if it wasn't cached it will download the zip and save
+// it in the cache path
+
 ```
 
 if you don't specify `arch` or `platform` args it will use `require('os')` to get them from the current OS. specifying `version` is mandatory.

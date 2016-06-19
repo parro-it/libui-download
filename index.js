@@ -1,8 +1,7 @@
-import {createWriteStream} from 'fs';
+import {createWriteStream, access} from 'fs';
 import os from 'os';
 import path from 'path';
 import _mkdir from 'mkdirp';
-import pathExists from 'path-exists';
 import pify from 'pify';
 import homePath from 'home-path';
 import mv from 'mv';
@@ -16,6 +15,12 @@ const Promise = global.Promise || _Promise;
 const debug = _debug('libui-download');
 // const npmrc = _npmrc('npm');
 const mkdir = pify(_mkdir, Promise);
+
+const pathExists = fp => new Promise(resolve => {
+	access(fp, err => {
+		resolve(!err);
+	});
+});
 
 function nodePlatformToOS(arch) {
 	switch (arch) {
