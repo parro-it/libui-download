@@ -128,7 +128,7 @@ async function download(opts) {
 		const res = request(url);
 
 		const finish = () => {
-			console.log('end stream reached', target, cachedZip);
+			debug('end stream reached', target, cachedZip);
 			mv(target, cachedZip, function (err) {
 				if (err) {
 					reject(err);
@@ -139,7 +139,7 @@ async function download(opts) {
 		};
 
 		res.on('response', resp => {
-			console.log(resp.statusCode);
+			debug(resp.statusCode);
 			if (resp.statusCode === 404) {
 				return reject(new Error(`Failed to find libui ${version} for ${opts.platform || os.platform()}-${arch} at ${url}`));
 			}
