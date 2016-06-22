@@ -1,6 +1,6 @@
 {
   "name": "libui-download",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "download libui prebuilt binary zips from github releases",
   "main": "es5.js",
   "bin": {
