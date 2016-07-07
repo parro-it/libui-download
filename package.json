@@ -7,7 +7,7 @@
     "libui-download": "cli.js"
   },
   "scripts": {
-    "test": "ava && xo",
+    "test": "ava -s && xo",
     "build": "babel index.js --out-file es5.js"
   },
   "files": [
@@ -22,11 +22,12 @@
     "home-path": "^1.0.1",
     "mkdirp": "^0.5.0",
     "mv": "^2.0.3",
-    "rc": "^1.1.2",
     "pify": "^2.3.0",
     "pinkie-promise": "^2.0.1",
+    "rc": "^1.1.2",
     "regenerator-runtime": "^0.9.5",
-    "request": "^2.72.0"
+    "request": "^2.72.0",
+    "tar.gz": "^1.0.5"
   },
   "devDependencies": {
     "ava": "^0.15.2",
