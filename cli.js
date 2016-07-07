@@ -3,7 +3,7 @@
 var targz = require('tar.gz');
 var download = require('./');
 
-download({version: process.argv[2]})
+download({version: process.argv[2] || process.env.npm_package_libui})
 	.then(function (zipPath) {
 		console.log('Downloaded zip:', zipPath);
 		return targz().extract(zipPath, '.');

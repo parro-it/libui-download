@@ -7,7 +7,7 @@
     "libui-download": "cli.js"
   },
   "scripts": {
-    "test": "ava -s && xo",
+    "test": "ava -s && xo --ignore es5.js",
     "build": "babel index.js --out-file es5.js"
   },
   "files": [
