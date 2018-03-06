@@ -1,6 +1,6 @@
 {
   "name": "libui-download",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "download libui prebuilt binary zips from github releases",
   "main": "es5.js",
   "bin": {
@@ -15,8 +15,8 @@
     "cli.js"
   ],
   "engines": {
-		"node": ">=4"
-	},
+    "node": ">=4"
+  },
   "repository": "parro-it/libui-download",
   "author": "Andrea Parodi",
   "license": "MIT",
