@@ -27,7 +27,7 @@
     "rc": "^1.1.2",
     "regenerator-runtime": "^0.9.5",
     "request": "^2.72.0",
-    "tar.gz": "^1.0.5"
+    "tar": "^4.4.0"
   },
   "devDependencies": {
     "ava": "^0.15.2",
