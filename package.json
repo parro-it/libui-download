@@ -26,7 +26,7 @@
     "pinkie-promise": "^2.0.1",
     "rc": "^1.1.2",
     "regenerator-runtime": "^0.9.5",
-    "request": "^2.72.0",
+    "request": "^2.85.0",
     "tar.gz": "^1.0.5"
   },
   "devDependencies": {
